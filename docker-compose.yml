@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   mongo-express:
     image: mongo-express
@@ -16,6 +17,7 @@ services:
       - mongo-compose-network
     depends_on:
       - mongo
+
   mongo:
     image: mongo
     environment:
@@ -28,6 +30,7 @@ services:
       - mongodb_data_container:/data/db
     networks:
       - mongo-compose-network
+
   metabase:
     image: metabase/metabase
     ports:
@@ -36,9 +39,26 @@ services:
       - metabase_data_container:/metabase.db
     networks:
       - mongo-compose-network
+
+  lighthouse-microservice:
+    build: ./lighthouse-microservice
+    image: lighthouse-microservice
+    command: npm run debug
+    cap_add:
+      - SYS_ADMIN
+    ports:
+      - 4000:4000
+      - 9229:9229
+    environment:
+      SERVER_PORT: 4000
+    volumes:
+      - ./lighthouse-microservice:/usr/src/app
+      - /usr/src/app/node_modules
+
 networks: 
   mongo-compose-network:
     driver: bridge
+
 volumes:
   mongodb_data_container:
   metabase_data_container:
